@@ -1,0 +1,310 @@
+{
+  "ReportVersion": "2026.3.2",
+  "ReportGuid": "ebece4b5eb50dfef3b34bd681692c830",
+  "ReportName": "Report",
+  "ReportAlias": "Report",
+  "ReportFile": "客戶清冊.mrt",
+  "ReportCreated": "/Date(1786931544000+0800)/",
+  "ReportChanged": "/Date(1786955047000+0800)/",
+  "EngineVersion": "EngineV2",
+  "ReportUnit": "Centimeters",
+  "ScriptLanguage": "CSharp",
+  "UsePlatformDependentScript": false,
+  "CalculationMode": "Interpretation",
+  "Dictionary": {
+    "DataSources": {
+      "0": {
+        "Ident": "StiDataTableSource",
+        "Name": "root",
+        "Alias": "root",
+        "Columns": {
+          "0": {
+            "Name": "傳真",
+            "NameInSource": "傳真",
+            "Alias": "傳真",
+            "Type": "System.String"
+          },
+          "1": {
+            "Name": "公司地址",
+            "NameInSource": "公司地址",
+            "Alias": "公司地址",
+            "Type": "System.String"
+          },
+          "2": {
+            "Name": "客戶名稱",
+            "NameInSource": "客戶名稱",
+            "Alias": "客戶名稱",
+            "Type": "System.String"
+          },
+          "3": {
+            "Name": "客戶編號",
+            "NameInSource": "客戶編號",
+            "Alias": "客戶編號",
+            "Type": "System.String"
+          },
+          "4": {
+            "Name": "應收帳款科目",
+            "NameInSource": "應收帳款科目",
+            "Alias": "應收帳款科目",
+            "Type": "System.String"
+          },
+          "5": {
+            "Name": "發票地址",
+            "NameInSource": "發票地址",
+            "Alias": "發票地址",
+            "Type": "System.String"
+          },
+          "6": {
+            "Name": "稅率",
+            "NameInSource": "稅率",
+            "Alias": "稅率",
+            "Type": "System.Decimal"
+          },
+          "7": {
+            "Name": "統一編號",
+            "NameInSource": "統一編號",
+            "Alias": "統一編號",
+            "Type": "System.String"
+          },
+          "8": {
+            "Name": "聯絡人",
+            "NameInSource": "聯絡人",
+            "Alias": "聯絡人",
+            "Type": "System.String"
+          },
+          "9": {
+            "Name": "聯絡人職稱",
+            "NameInSource": "聯絡人職稱",
+            "Alias": "聯絡人職稱",
+            "Type": "System.String"
+          },
+          "10": {
+            "Name": "說明",
+            "NameInSource": "說明",
+            "Alias": "說明",
+            "Type": "System.String"
+          },
+          "11": {
+            "Name": "負責人",
+            "NameInSource": "負責人",
+            "Alias": "負責人",
+            "Type": "System.String"
+          },
+          "12": {
+            "Name": "郵遞區號",
+            "NameInSource": "郵遞區號",
+            "Alias": "郵遞區號",
+            "Type": "System.String"
+          },
+          "13": {
+            "Name": "電話",
+            "NameInSource": "電話",
+            "Alias": "電話",
+            "Type": "System.String"
+          },
+          "14": {
+            "Name": "預收款餘額",
+            "NameInSource": "預收款餘額",
+            "Alias": "預收款餘額",
+            "Type": "System.Decimal"
+          }
+        },
+        "NameInSource": "Customers.root"
+      }
+    },
+    "Databases": {
+      "0": {
+        "Ident": "StiJsonDatabase",
+        "Name": "Customers",
+        "Alias": "Customers",
+        "PathData": "http://localhost:5174/api/customers/report-data",
+        "HeadersString": "YyoQVHvZXeyY3LY5ASN05g=="
+      }
+    }
+  },
+  "Pages": {
+    "0": {
+      "Ident": "StiPage",
+      "Name": "Page1",
+      "Guid": "3dc096f991ec1da2365a63e35906eb41",
+      "Interaction": {
+        "Ident": "StiInteraction"
+      },
+      "Border": ";;2;;;;;solid:Black",
+      "Brush": "solid:",
+      "Components": {
+        "0": {
+          "Ident": "StiHeaderBand",
+          "Name": "HeaderBand1",
+          "CanGrow": true,
+          "ClientRectangle": "0,0.4,19,0.8",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:"
+        },
+        "1": {
+          "Ident": "StiColumnHeaderBand",
+          "Name": "ColumnHeaderBand1",
+          "CanGrow": true,
+          "ClientRectangle": "0,2,19,0.8",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "Components": {
+            "0": {
+              "Ident": "StiText",
+              "Name": "Text5",
+              "Guid": "588a8a6d6ee71f6a4ceb44dc57687e04",
+              "ClientRectangle": "11.01,0.21,7.6,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "公司地址"
+              },
+              "Font": ";12;Bold;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black"
+            },
+            "1": {
+              "Ident": "StiText",
+              "Name": "Text6",
+              "Guid": "36c782d581319e10bc9fb2d4fcbe1b0a",
+              "ClientRectangle": "9.41,0.21,1.6,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "負責人"
+              },
+              "Font": ";12;Bold;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black"
+            },
+            "2": {
+              "Ident": "StiText",
+              "Name": "Text7",
+              "Guid": "1661e9adc0ed127a183188114befde98",
+              "ClientRectangle": "2.41,0.21,7,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "客戶名稱"
+              },
+              "Font": ";12;Bold;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black"
+            },
+            "3": {
+              "Ident": "StiText",
+              "Name": "Text8",
+              "Guid": "e61886cdc6174c8de387da942fe0a9e0",
+              "ClientRectangle": "0.41,0.21,1.8,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "客戶編號"
+              },
+              "Font": ";12;Bold;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            }
+          }
+        },
+        "2": {
+          "Ident": "StiDataBand",
+          "Name": "DataBand1",
+          "CanGrow": true,
+          "ClientRectangle": "0,3.6,19,0.8",
+          "Expressions": {
+            "0": {
+              "Name": "CountData"
+            }
+          },
+          "Interaction": {
+            "Ident": "StiBandInteraction"
+          },
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "Components": {
+            "0": {
+              "Ident": "StiText",
+              "Name": "Text1",
+              "ClientRectangle": "0.4,0.2,1.8,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{root.客戶編號}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black"
+            },
+            "1": {
+              "Ident": "StiText",
+              "Name": "Text2",
+              "ClientRectangle": "2.4,0.2,7,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{root.客戶名稱}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black"
+            },
+            "2": {
+              "Ident": "StiText",
+              "Name": "Text3",
+              "ClientRectangle": "9.4,0.2,1.6,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{root.負責人}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black"
+            },
+            "3": {
+              "Ident": "StiText",
+              "Name": "Text4",
+              "ClientRectangle": "11,0.2,7.6,0.6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{root.公司地址}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "TextOptions": {
+                "WordWrap": true
+              }
+            }
+          },
+          "DataSourceName": "root"
+        }
+      }
+    }
+  }
+}
