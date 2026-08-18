@@ -1,5 +1,6 @@
-import { Layout, Typography } from 'antd'
+import { Layout, Typography, Tabs } from 'antd'
 import CustomerMaster from './pages/CustomerMaster'
+import DataDictMaster from './pages/DataDictMaster'
 
 const { Header, Content } = Layout
 
@@ -12,7 +13,13 @@ export default function App() {
         </Typography.Title>
       </Header>
       <Content style={{ padding: '24px', background: '#f5f5f5' }}>
-        <CustomerMaster />
+        <Tabs
+          defaultActiveKey="customer"
+          items={[
+            { key: 'customer', label: '客戶主檔', children: <CustomerMaster /> },
+            { key: 'datadict', label: '資料字典維護', children: <DataDictMaster /> },
+          ]}
+        />
       </Content>
     </Layout>
   )

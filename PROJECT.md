@@ -1,6 +1,6 @@
 # ERP2026 進銷存系統 — 開發文件
 
-> 最後更新：2026-08-17（列印選單、報表預覽）
+> 最後更新：2026-08-18（資料字典維護 + 可重用 Lookup 元件）
 
 ---
 
@@ -12,11 +12,12 @@
 4. [資料庫](#資料庫)
 5. [後端 FastAPI](#後端-fastapi)
 6. [前端 React + Vite](#前端-react--vite)
-7. [Stimulsoft 報表設計器](#stimulsoft-報表設計器)
-8. [啟動方式](#啟動方式)
-9. [移植到新電腦](#移植到新電腦)
-10. [已完成功能](#已完成功能)
-11. [待開發功能](#待開發功能)
+7. [資料字典與可重用 Lookup 元件](#資料字典與可重用-lookup-元件)
+8. [Stimulsoft 報表設計器](#stimulsoft-報表設計器)
+9. [啟動方式](#啟動方式)
+10. [移植到新電腦](#移植到新電腦)
+11. [已完成功能](#已完成功能)
+12. [待開發功能](#待開發功能)
 
 ---
 
@@ -65,7 +66,8 @@ ERP2026/
 │   ├── requirements.txt     # Python 套件清單
 │   └── routers/
 │       ├── customers.py     # 客戶主檔 CRUD + report-data API
-│       └── reports.py       # 報表檔案列表 + 下載 API（no-cache）
+│       ├── reports.py       # 報表檔案列表 + 下載 API（no-cache）
+│       └── data_dict.py     # 資料字典主檔/欄位 CRUD + Lookup meta/data API
 │
 ├── Report/
 │   └── Customer/            # 客戶報表範本目錄（*.mrt）
@@ -89,13 +91,18 @@ ERP2026/
 │       ├── style.css            # 全域樣式
 │       ├── api/
 │       │   ├── customers.js     # customerApi（axios）
-│       │   └── reports.js       # reportApi：listCustomer / customerReportUrl（含 cache-buster）
+│       │   ├── reports.js       # reportApi：listCustomer / customerReportUrl（含 cache-buster）
+│       │   └── datadict.js      # dataDictApi：主檔/欄位 CRUD、meta、data
 │       ├── pages/
-│       │   └── CustomerMaster.jsx   # 客戶主檔維護頁面
+│       │   ├── CustomerMaster.jsx   # 客戶主檔維護頁面
+│       │   └── DataDictMaster.jsx   # 資料字典維護頁面（主檔 + 欄位定義）
 │       └── components/
 │           ├── CustomerFormModal.jsx      # 新增/編輯客戶 Modal
 │           ├── CustomerReport.jsx         # Stimulsoft 報表設計器/預覽 Modal（localStorage 版面）
-│           └── CustomerReportPreview.jsx  # Stimulsoft 純預覽 Modal（載入 .mrt 檔）
+│           ├── CustomerReportPreview.jsx  # Stimulsoft 純預覽 Modal（載入 .mrt 檔）
+│           ├── DataDictFormModal.jsx      # 新增/編輯資料字典主檔 Modal
+│           ├── DataDictFieldFormModal.jsx # 新增/編輯資料字典欄位 Modal
+│           └── DataDictLookup.jsx         # ★ 可重用 Lookup 元件（其他頁面選值用）
 │
 └── .claude/
     └── skills/
@@ -127,6 +134,27 @@ Password: erp2026
 | TBL_CUSTOMER | 客戶主檔 | C001–C300（300 筆） |
 | TBL_SUPPLIER | 供應商主檔 | S001–S300（300 筆） |
 | TBL_PRODUCT | 產品主檔 | P001–P300（300 筆） |
+| TBLDD | 資料字典主檔（Lookup 定義） | 依實際建立筆數 |
+| TBL_DDFIELD | 資料字典欄位定義 | 依實際建立筆數 |
+
+#### TBLDD（資料字典主檔）
+
+| 欄位 | 說明 |
+|------|------|
+| DDM_NO | PK，資料字典編號，其他畫面用這個編號指定要用哪個資料字典 |
+| DDM_NAME | 資料字典名稱，即 Lookup 視窗標題 |
+| DDM_SQL | 資料來源 SQL（僅允許單一 SELECT 查詢，後端會檔） |
+| RET_VAL_FIELD | 選取後回傳的欄位名稱，需對應 DDM_SQL 查詢出的欄位 |
+| IS_MULTI_SELECTED | 是否允許多選（`Y`/`N`） |
+
+#### TBL_DDFIELD（資料字典欄位定義）
+
+| 欄位 | 說明 |
+|------|------|
+| DDD_ID | PK，`S_DDD_ID.NEXTVAL` |
+| DDM_NO | FK → TBLDD.DDM_NO |
+| DDD_FIELD | 欄位名稱，需對應 DDM_SQL 查詢出的欄位（可用「自動產生欄位定義」帶出） |
+| DDD_FIELD_DISP | 欄位顯示名稱，Lookup 表格的欄位標題 |
 
 ### 重新產生測試資料
 
@@ -169,6 +197,23 @@ python -m uvicorn main:app --reload --port 8000
 | GET | `/api/reports/customer` | 列出 `Report/Customer/*.mrt` 的檔名（不含副檔名） |
 | GET | `/api/reports/customer/{filename}` | 下載單一 `.mrt` 檔（`Cache-Control: no-store`） |
 
+#### 資料字典（`/api/datadict`）
+
+| Method | 路徑 | 說明 |
+|--------|------|------|
+| GET | `/api/datadict` | 分頁查詢主檔（關鍵字比對編號/名稱） |
+| GET | `/api/datadict/{ddm_no}` | 取得單筆主檔 |
+| POST | `/api/datadict` | 新增主檔（201，DDM_SQL 需為單一 SELECT） |
+| PUT | `/api/datadict/{ddm_no}` | 更新主檔 |
+| DELETE | `/api/datadict/{ddm_no}` | 刪除主檔（會先刪除底下的欄位定義） |
+| GET | `/api/datadict/{ddm_no}/fields` | 取得欄位定義清單 |
+| POST | `/api/datadict/{ddm_no}/fields` | 新增欄位定義 |
+| PUT | `/api/datadict/{ddm_no}/fields/{ddd_id}` | 更新欄位定義 |
+| DELETE | `/api/datadict/{ddm_no}/fields/{ddd_id}` | 刪除欄位定義 |
+| POST | `/api/datadict/{ddm_no}/fields/auto-generate` | 依 DDM_SQL 欄位結構自動產生欄位定義（保留已存在欄位的顯示名稱） |
+| GET | `/api/datadict/{ddm_no}/meta` | 供 Lookup 元件用：主檔資訊 + 欄位定義清單 |
+| GET | `/api/datadict/{ddm_no}/data?q=` | 執行 DDM_SQL 取得 Lookup 資料，`q` 可跨所有已定義欄位做關鍵字過濾（不分頁，回傳全部符合的資料） |
+
 ### 查詢參數（GET /api/customers）
 
 | 參數 | 說明 |
@@ -208,8 +253,74 @@ proxy: { '/api': { target: 'http://localhost:8000', changeOrigin: true } }
 | `components/CustomerFormModal.jsx` | 新增 / 編輯客戶表單（基本、聯絡、財務資料） |
 | `components/CustomerReport.jsx` | Stimulsoft 報表 Modal（設計版面 Tab + 預覽列印 Tab，版面存 localStorage） |
 | `components/CustomerReportPreview.jsx` | Stimulsoft 純預覽 Modal（直接載入 `.mrt` 檔，每次強制重新整理） |
+| `pages/DataDictMaster.jsx` | 資料字典維護（主檔 + 欄位定義雙表格、自動產生欄位定義、測試 Lookup） |
+| `components/DataDictFormModal.jsx` | 新增 / 編輯資料字典主檔表單 |
+| `components/DataDictFieldFormModal.jsx` | 新增 / 編輯資料字典欄位表單 |
+| `components/DataDictLookup.jsx` | ★ 可重用 Lookup 元件，其他頁面需要「選值」時直接掛用（詳見下一節） |
 | `api/customers.js` | customerApi（list / get / create / update / remove / reportDataUrl） |
 | `api/reports.js` | reportApi（listCustomer / customerReportUrl，URL 含 `?_=timestamp` cache-buster） |
+| `api/datadict.js` | dataDictApi（主檔/欄位 CRUD、autoGenerateFields、getMeta、getData） |
+
+---
+
+## 資料字典與可重用 Lookup 元件
+
+「資料字典」是一個可設定的 Table Lookup 元件來源：先在**資料字典維護**頁面（分頁「資料字典維護」）定義好一筆資料字典，之後任何頁面只要知道它的 `DDM_NO`，就能直接掛上 `<DataDictLookup>` 元件做選值查詢，不用另外寫 Modal / API。
+
+### 運作原理
+
+- **TBLDD**（主檔）：定義 Lookup 的資料來源 SQL、回傳欄位、是否多選。
+- **TBL_DDFIELD**（欄位定義）：定義 Lookup 表格要顯示哪些欄位、標題是什麼；可用「自動產生欄位定義」依 DDM_SQL 的欄位結構自動帶出（已存在的欄位會保留原顯示名稱）。
+- `DataDictLookup` 元件在開啟時呼叫 `GET /api/datadict/{ddm_no}/meta` 取得表格欄位與設定，呼叫 `GET /api/datadict/{ddm_no}/data?q=` 取得（可依關鍵字過濾的）資料列；使用者選取後，元件依 `RET_VAL_FIELD` 從選取列中取值，以 **JSON Array** 回傳（單選也是陣列，只是長度為 1）。
+
+### 新增一個資料字典（前置作業）
+
+1. 到「資料字典維護」頁面點「新增資料字典」，填 `DDM_NO`（其他頁面程式碼要用到）、`DDM_NAME`（Lookup 標題）、`DDM_SQL`（單一 SELECT 查詢）、`RET_VAL_FIELD`（回傳欄位）、是否多選。
+2. 選取剛新增的那筆，點「自動產生欄位定義」，系統會依 SQL 欄位結構自動列出欄位；可再逐一「編輯」欄位把顯示名稱改成中文。
+3. 點該筆的「測試」按鈕，用 `DataDictLookup` 本尊確認搜尋、選取、回傳值都符合預期。
+
+### 在其他頁面使用 `<DataDictLookup>`
+
+```jsx
+import { useState } from 'react'
+import { Input, Button, Space } from 'antd'
+import DataDictLookup from '../components/DataDictLookup'
+
+function SalesOrderForm() {
+  const [lookupOpen, setLookupOpen] = useState(false)
+  const [cumNo, setCumNo] = useState('')
+
+  return (
+    <>
+      <Space.Compact style={{ width: '100%' }}>
+        <Input value={cumNo} readOnly placeholder="客戶編號" />
+        <Button onClick={() => setLookupOpen(true)}>選擇</Button>
+      </Space.Compact>
+
+      <DataDictLookup
+        ddmNo="TBL_CUSTOMER"                 // 對應 TBLDD.DDM_NO
+        open={lookupOpen}
+        onCancel={() => setLookupOpen(false)}
+        onConfirm={(values) => {
+          setCumNo(values[0])                // 單選：取第一筆；多選則整個陣列都要
+          setLookupOpen(false)
+        }}
+      />
+    </>
+  )
+}
+```
+
+#### Props
+
+| Prop | 型別 | 說明 |
+|------|------|------|
+| `ddmNo` | string | 要使用的資料字典編號（`TBLDD.DDM_NO`），需已在資料字典維護頁面建立並定義好欄位 |
+| `open` | boolean | 是否顯示 Modal |
+| `onCancel` | () => void | 取消 / 關閉時呼叫 |
+| `onConfirm` | (values, rows) => void | 按下「確認」時呼叫：`values` 為選取列的 `RET_VAL_FIELD` 值陣列（JSON Array，單選也是陣列）；`rows` 為選取的完整資料列，需要其他欄位（例如同時要客戶名稱）可從這裡取 |
+
+> 元件內部已處理搜尋框、欄位標題（依 `TBL_DDFIELD`）、單選/多選（依 `TBLDD.IS_MULTI_SELECTED`），呼叫端只需要管開關狀態與拿回傳值即可。
 
 ---
 
@@ -333,6 +444,11 @@ node scripts/copy-stimulsoft.js
   - [x] 報表設計器（`CustomerReport`，Stimulsoft Designer + Viewer，版面存 localStorage）
   - [x] 報表資料來源 API（`/api/customers/report-data`）
   - [x] 報表檔案 API（`/api/reports/customer`，列表 + 下載，no-cache headers）
+- [x] 資料字典模組（TBLDD / TBL_DDFIELD）
+  - [x] 資料字典維護頁面（主檔 + 欄位定義雙表格，新增/編輯/刪除）
+  - [x] 自動產生欄位定義（依 DDM_SQL 欄位結構）
+  - [x] 可重用 `DataDictLookup` 元件（搜尋、單/多選、JSON Array 回傳）
+  - [x] 主檔 DDM_SQL 僅允許單一 SELECT（後端檢查，防止多重語句）
 
 ---
 

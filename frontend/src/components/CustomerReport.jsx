@@ -199,7 +199,7 @@ export default function CustomerReport({ open, onClose, searchParams }) {
           type="warning"
           showIcon
           icon={<InfoCircleOutlined />}
-          title="Stimulsoft Reports.JS 未載入"
+          message="Stimulsoft Reports.JS 未載入"
           description={
             <div>
               <p>請依下列步驟安裝 Stimulsoft：</p>
