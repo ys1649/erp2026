@@ -1,0 +1,338 @@
+/*==============================================================*/
+/* Database name:  MODEL_129                                    */
+/* DBMS name:      ORACLE Version 11g                           */
+/* Created on:     2026/8/14 上午 10:31:24                        */
+/*==============================================================*/
+
+
+alter table TBL_AP_PAY
+   drop constraint FKPAY_TBL_AP_PAY_TBL_SUPPLI;
+
+alter table TBL_AR_RECV
+   drop constraint FKRCV_TBL_AR_REC_TBL_CUSTOM;
+
+alter table TBL_HIS_PO_RECV
+   drop constraint FK400_TBL_HIS_PO_TBL_SUPPLI;
+
+alter table TBL_HIS_PO_RECV_DT
+   drop constraint FK404_TBL_HIS_PO_TBL_PRODUC;
+
+alter table TBL_HIS_SHIP
+   drop constraint FK388_TBL_HIS_SH_TBL_CUSTOM;
+
+alter table TBL_HIS_SHIP
+   drop constraint FK392_TBL_HIS_SH_TBL_EMPLOY;
+
+alter table TBL_HIS_SHIP_DT
+   drop constraint FK396_TBL_HIS_SH_TBL_PRODUC;
+
+alter table TBL_INV_ADJ_DT
+   drop constraint FKADD_TBL_INV_AD_TBL_PRODUC;
+
+alter table TBL_INV_ONHAND
+   drop constraint FK575_TBL_INV_ON_TBL_PRODUC;
+
+alter table TBL_PO_RECV
+   drop constraint FKRCV_TBL_PO_REC_TBL_SUPPLI;
+
+alter table TBL_PO_RECV_DT
+   drop constraint FKRCD_TBL_PO_REC_TBL_PRODUC;
+
+alter table TBL_SHIP
+   drop constraint FK311_TBL_SHIP_TBL_EMPLOY;
+
+alter table TBL_SHIP
+   drop constraint FKSMT_TBL_SHIP_TBL_CUSTOM;
+
+alter table TBL_SHIP_DT
+   drop constraint FKSMD_TBL_SHIP_D_TBL_PRODUC;
+
+alter table TBL_TRANSACTION
+   drop constraint FKTRN_TBL_TRANSA_TBL_PRODUC;
+
+drop table TBL_CUSTOMER cascade constraints;
+
+drop table TBL_EMPLOYE cascade constraints;
+
+drop table TBL_PRODUCT cascade constraints;
+
+drop table TBL_SUPPLIER cascade constraints;
+
+drop sequence S_TBL_TRANSACTION;
+
+/*==============================================================*/
+/* Database: MODEL_129                                          */
+/*==============================================================*/
+create database MODEL_129;
+
+create sequence S_TBL_TRANSACTION;
+
+/*==============================================================*/
+/* Table: TBL_CUSTOMER                                          */
+/*==============================================================*/
+create table TBL_CUSTOMER 
+(
+   CUM_NO               VARCHAR2(20)         not null,
+   CUM_NAME             VARCHAR2(80)         not null,
+   CUM_PRESIDENT        VARCHAR2(20),
+   CUM_CONTANT          VARCHAR2(20),
+   CUM_CONT_TITLE       VARCHAR2(20),
+   CUM_TEL1             VARCHAR2(30),
+   CUM_TEL2             VARCHAR2(30),
+   CUM_FAX              VARCHAR2(30),
+   CUM_UNIFORM_NO       VARCHAR2(20),
+   CUM_INV_ADDR         VARCHAR2(200),
+   CUM_ADDR             VARCHAR2(200),
+   CUM_ZIP_CODE         VARCHAR2(6),
+   CUM_ADVANCE_AMOUNT   NUMBER(8,2)          not null,
+   CUM_DESC             VARCHAR2(200),
+   CUM_CREATOR          VARCHAR2(20),
+   CUM_ACNT_AR          VARCHAR2(20)         default '1141' not null,
+   CUM_ACNT_ADVANCE     VARCHAR2(20)         default '2261' not null,
+   CUM_INV_RATE         NUMBER(18,4)         default 0 not null,
+   constraint PK_TBL_CUSTOMER primary key (CUM_NO)
+);
+
+comment on table TBL_CUSTOMER is
+'客戶主檔';
+
+comment on column TBL_CUSTOMER.CUM_NO is
+'客戶編號';
+
+comment on column TBL_CUSTOMER.CUM_NAME is
+'客戶名稱';
+
+comment on column TBL_CUSTOMER.CUM_PRESIDENT is
+'負責人';
+
+comment on column TBL_CUSTOMER.CUM_CONTANT is
+'聯絡人';
+
+comment on column TBL_CUSTOMER.CUM_CONT_TITLE is
+'聯絡人';
+
+comment on column TBL_CUSTOMER.CUM_TEL1 is
+'電話1';
+
+comment on column TBL_CUSTOMER.CUM_TEL2 is
+'電話2';
+
+comment on column TBL_CUSTOMER.CUM_FAX is
+'傳真';
+
+comment on column TBL_CUSTOMER.CUM_UNIFORM_NO is
+'統一編號';
+
+comment on column TBL_CUSTOMER.CUM_INV_ADDR is
+'發票地址';
+
+comment on column TBL_CUSTOMER.CUM_ADDR is
+'公司地址';
+
+comment on column TBL_CUSTOMER.CUM_ZIP_CODE is
+'郵遞區號';
+
+comment on column TBL_CUSTOMER.CUM_ADVANCE_AMOUNT is
+'預收款餘額';
+
+comment on column TBL_CUSTOMER.CUM_DESC is
+'說明';
+
+comment on column TBL_CUSTOMER.CUM_CREATOR is
+'建檔人員';
+
+comment on column TBL_CUSTOMER.CUM_ACNT_AR is
+'應收帳款科目';
+
+comment on column TBL_CUSTOMER.CUM_ACNT_ADVANCE is
+'應收帳款科目';
+
+comment on column TBL_CUSTOMER.CUM_INV_RATE is
+'應收帳款科目';
+
+/*==============================================================*/
+/* Table: TBL_EMPLOYE                                           */
+/*==============================================================*/
+create table TBL_EMPLOYE 
+(
+   EPY_NO               VARCHAR2(20)         not null,
+   EPY_NAME             VARCHAR2(20)         not null,
+   EPY_PASSWORD         VARCHAR2(20),
+   EPY_TEL1             VARCHAR2(30),
+   EPY_TEL2             VARCHAR2(30),
+   EPY_ADDR             VARCHAR2(200),
+   EPY_IS_CAN_LOGIN     SMALLINT             default 0 not null,
+   EPY_DESC             VARCHAR2(200),
+   EPY_CREATOR          VARCHAR2(20),
+   constraint PK_TBL_EMPLOYE primary key (EPY_NO)
+);
+
+comment on column TBL_EMPLOYE.EPY_NO is
+'員工編號';
+
+comment on column TBL_EMPLOYE.EPY_NAME is
+'員工姓名';
+
+comment on column TBL_EMPLOYE.EPY_PASSWORD is
+'密碼';
+
+comment on column TBL_EMPLOYE.EPY_TEL1 is
+'電話1';
+
+comment on column TBL_EMPLOYE.EPY_TEL2 is
+'電話2';
+
+comment on column TBL_EMPLOYE.EPY_ADDR is
+'住址';
+
+comment on column TBL_EMPLOYE.EPY_IS_CAN_LOGIN is
+'是否可登入系統';
+
+comment on column TBL_EMPLOYE.EPY_DESC is
+'說明';
+
+comment on column TBL_EMPLOYE.EPY_CREATOR is
+'建檔人員';
+
+INSERT INTO TBL_EMPLOYE(EPY_NO, EPY_NAME, EPY_IS_CAN_LOGIN
+, EPY_DESC, EPY_CREATOR)
+VALUES('WYS','ADMINISTRATOR',1,'SYSTEM ADMINISTRATOR','DEFAULT')
+
+/*==============================================================*/
+/* Table: TBL_PRODUCT                                           */
+/*==============================================================*/
+create table TBL_PRODUCT 
+(
+   PRD_NO               VARCHAR2(20)         not null,
+   PRD_NAME             VARCHAR2(80)         not null,
+   PRD_UNIT             VARCHAR2(6),
+   PRD_SALE_PRICE       NUMBER(8,2)          not null,
+   PRD_SAFE_QTY         NUMBER(18,4)         not null,
+   PRD_ONHAND           NUMBER(18,4)         not null,
+   PRD_CUR_COST         NUMBER(8,2)          not null,
+   PRD_DESC             VARCHAR2(200),
+   PRD_IS_DUMMY         SMALLINT             default 0 not null,
+   PRD_DUM_COST_RATE    NUMBER(18,4)         not null,
+   PRD_EXT_COST_RATIO   NUMBER(18,4)         not null,
+   PRD_CREATOR          VARCHAR2(20),
+   constraint PK_TBL_PRODUCT primary key (PRD_NO)
+);
+
+comment on table TBL_PRODUCT is
+'產品主檔';
+
+comment on column TBL_PRODUCT.PRD_NO is
+'產品編號';
+
+comment on column TBL_PRODUCT.PRD_NAME is
+'產品編號';
+
+comment on column TBL_PRODUCT.PRD_UNIT is
+'單位';
+
+comment on column TBL_PRODUCT.PRD_SALE_PRICE is
+'建議售價';
+
+comment on column TBL_PRODUCT.PRD_SAFE_QTY is
+'安全存量';
+
+comment on column TBL_PRODUCT.PRD_ONHAND is
+'全部庫存現有數量';
+
+comment on column TBL_PRODUCT.PRD_CUR_COST is
+'現行成本';
+
+comment on column TBL_PRODUCT.PRD_DESC is
+'說明';
+
+comment on column TBL_PRODUCT.PRD_IS_DUMMY is
+'是否為虛擬料品，虛擬料品不計算庫存';
+
+comment on column TBL_PRODUCT.PRD_DUM_COST_RATE is
+'虛擬料品成本比率';
+
+comment on column TBL_PRODUCT.PRD_EXT_COST_RATIO is
+'額外管銷成本比率(家具業)';
+
+comment on column TBL_PRODUCT.PRD_CREATOR is
+'建檔人員';
+
+/*==============================================================*/
+/* Table: TBL_SUPPLIER                                          */
+/*==============================================================*/
+create table TBL_SUPPLIER 
+(
+   SUP_NO               VARCHAR2(20)         not null,
+   SUP_NAME             VARCHAR2(80)         not null,
+   SUP_PRESIDENT        VARCHAR2(20),
+   SUP_CONTANT          VARCHAR2(20),
+   SUP_CONT_TITLE       VARCHAR2(20),
+   SUP_TEL1             VARCHAR2(30),
+   SUP_TEL2             VARCHAR2(30),
+   SUP_FAX              VARCHAR2(30),
+   SUP_UNIFORM_NO       VARCHAR2(20),
+   SUP_INV_ADDR         VARCHAR2(200),
+   SUP_ADDR             VARCHAR2(200),
+   SUP_ZIP_CODE         VARCHAR2(6),
+   SUP_ADVANCE_AMOUNT   NUMBER(8,2)          not null,
+   SUP_DESC             VARCHAR2(200),
+   SUP_CREATOR          VARCHAR2(20),
+   SUP_ACNT_AP          VARCHAR2(20)         default '2141' not null,
+   SUP_ACNT_ADVANCE     VARCHAR2(20)         default '1261' not null,
+   constraint PK_TBL_SUPPLIER primary key (SUP_NO)
+);
+
+comment on table TBL_SUPPLIER is
+'供應商主檔';
+
+comment on column TBL_SUPPLIER.SUP_NO is
+'廠商編號';
+
+comment on column TBL_SUPPLIER.SUP_NAME is
+'廠商名稱';
+
+comment on column TBL_SUPPLIER.SUP_PRESIDENT is
+'負責人';
+
+comment on column TBL_SUPPLIER.SUP_CONTANT is
+'聯絡人';
+
+comment on column TBL_SUPPLIER.SUP_CONT_TITLE is
+'聯絡人職稱';
+
+comment on column TBL_SUPPLIER.SUP_TEL1 is
+'電話1';
+
+comment on column TBL_SUPPLIER.SUP_TEL2 is
+'電話2';
+
+comment on column TBL_SUPPLIER.SUP_FAX is
+'傳真';
+
+comment on column TBL_SUPPLIER.SUP_UNIFORM_NO is
+'統一編號';
+
+comment on column TBL_SUPPLIER.SUP_INV_ADDR is
+'發票地址';
+
+comment on column TBL_SUPPLIER.SUP_ADDR is
+'公司地址';
+
+comment on column TBL_SUPPLIER.SUP_ZIP_CODE is
+'郵遞區號';
+
+comment on column TBL_SUPPLIER.SUP_ADVANCE_AMOUNT is
+'預付款餘額';
+
+comment on column TBL_SUPPLIER.SUP_DESC is
+'說明';
+
+comment on column TBL_SUPPLIER.SUP_CREATOR is
+'建檔人員';
+
+comment on column TBL_SUPPLIER.SUP_ACNT_AP is
+'應付帳款科目';
+
+comment on column TBL_SUPPLIER.SUP_ACNT_ADVANCE is
+'預付款科目';
+

@@ -19,7 +19,3 @@ Thumbs.db
 .vscode/
 .idea/
 
-# PowerDesigner / local tools
-*.pdb
-*.pdm
-crebas
