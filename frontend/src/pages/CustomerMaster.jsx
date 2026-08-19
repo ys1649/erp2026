@@ -12,6 +12,7 @@ import { reportApi } from '../api/reports'
 import CustomerFormModal from '../components/CustomerFormModal'
 import CustomerReportPreview from '../components/CustomerReportPreview'
 import CustomerReport from '../components/CustomerReport'
+import DataDictLookup from '../components/DataDictLookup'
 
 const { Title } = Typography
 
@@ -35,6 +36,10 @@ export default function CustomerMaster() {
   const [previewOpen, setPreviewOpen] = useState(false)
   const [designerOpen, setDesignerOpen] = useState(false)
 
+  // 測試：資料字典 Lookup（TBL_CUSTOMER）
+  const [testLookupOpen, setTestLookupOpen] = useState(false)
+  const [testCustNo, setTestCustNo] = useState('')
+
   // ── 查詢 ────────────────────────────────────────────────
   const fetchData = useCallback(async (params = searchParams, pg = page, ps = pageSize) => {
     setTableLoading(true)
@@ -53,7 +58,7 @@ export default function CustomerMaster() {
 
   useEffect(() => {
     reportApi.listCustomer()
-      .then((res) => setReportFiles(res.data))
+      .then((res) => setReportFiles(Array.isArray(res.data) ? res.data : []))
       .catch(() => {})
   }, [])
 
@@ -166,6 +171,20 @@ export default function CustomerMaster() {
               <Button icon={<ReloadOutlined />} onClick={handleReset}>重設</Button>
             </Space>
           </Form.Item>
+          <Form.Item label="客戶編號查詢(測試)">
+            <Input
+              readOnly
+              value={testCustNo}
+              placeholder="點擊搜尋圖示測試 DataDictLookup"
+              style={{ width: 200 }}
+              suffix={
+                <SearchOutlined
+                  style={{ cursor: 'pointer', color: '#bbb' }}
+                  onClick={() => setTestLookupOpen(true)}
+                />
+              }
+            />
+          </Form.Item>
         </Form>
       </Card>
 
@@ -254,6 +273,17 @@ export default function CustomerMaster() {
         open={designerOpen}
         onClose={() => setDesignerOpen(false)}
         searchParams={searchParams}
+      />
+
+      {/* ── 測試：資料字典 Lookup（TBL_CUSTOMER）── */}
+      <DataDictLookup
+        ddmNo="TBL_CUSTOMER"
+        open={testLookupOpen}
+        onCancel={() => setTestLookupOpen(false)}
+        onConfirm={(values) => {
+          setTestCustNo(values.join(', '))
+          setTestLookupOpen(false)
+        }}
       />
     </>
   )
