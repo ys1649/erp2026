@@ -333,15 +333,14 @@ function SalesOrderForm() {
 - 購買：https://www.stimulsoft.com/en/online-store/purchase#js
 - 客戶端（End User）使用報表：**免 Royalty**，不限客戶數量
 
-### 安裝步驟（移植到新電腦後需重做）
+### 安裝步驟
 
 ```bash
 cd frontend
-npm install stimulsoft-reports-js
-node scripts/copy-stimulsoft.js
+npm install
 ```
 
-執行後 `public/stimulsoft/` 目錄會產生以下 3 個 JS 檔：
+`stimulsoft-reports-js` 已列在 `package.json` dependencies，且 `postinstall` 腳本會自動執行 `copy-stimulsoft.js`，`npm install` 完成後即會自動產生以下 JS 檔：
 - `stimulsoft.reports.js`
 - `stimulsoft.viewer.js`
 - `stimulsoft.designer.js`
@@ -414,18 +413,15 @@ npm run dev
 cd ERP2026/backend
 pip install -r requirements.txt
 
-# 3. 安裝前端套件
+# 3. 安裝前端套件（postinstall 會自動複製 Stimulsoft JS 到 public/stimulsoft/）
 cd ../frontend
 npm install
 
-# 4. 重新複製 Stimulsoft JS（node_modules 不複製）
-node scripts/copy-stimulsoft.js
-
-# 5. 啟動（參考上方啟動方式）
+# 4. 啟動（參考上方啟動方式）
 ```
 
 > **注意**：`frontend/node_modules/` 和 `frontend/public/stimulsoft/` 不需要複製，
-> 執行 `npm install` 和 `copy-stimulsoft.js` 後會自動重建。
+> 執行 `npm install` 後會自動重建。
 
 ---
 

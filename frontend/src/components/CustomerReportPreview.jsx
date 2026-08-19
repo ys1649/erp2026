@@ -125,11 +125,11 @@ export default function CustomerReportPreview({ open, onClose, reportName, searc
             <div>
               <p>請依下列步驟安裝 Stimulsoft：</p>
               <Typography.Text code>
-                cd frontend &amp;&amp; npm install stimulsoft-reports-js
+                cd frontend &amp;&amp; npm install
               </Typography.Text>
               <p style={{ marginTop: 8 }}>
-                然後執行 <code>node scripts/copy-stimulsoft.js</code> 將檔案複製至{' '}
-                <code>public/stimulsoft/</code>，再重新啟動開發伺服器。
+                <code>npm install</code> 會自動將檔案複製至{' '}
+                <code>public/stimulsoft/</code>，完成後重新啟動開發伺服器即可。
               </p>
             </div>
           }
