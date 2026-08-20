@@ -1,6 +1,6 @@
 # ERP2026 進銷存系統 — 開發文件
 
-> 最後更新：2026-08-18（資料字典維護 + 可重用 Lookup 元件）
+> 最後更新：2026-08-20（DDLookup 呼叫式 API + DDLookupInput 打字下拉/多選 Modal 雙模式；修正版本號 React 19 / antd 6）
 
 ---
 
@@ -25,7 +25,7 @@
 
 進銷存 + 財務總帳系統，前後端分離架構。
 
-- **前端**：React 18 SPA，透過 Vite dev server（port 5173）提供
+- **前端**：React 19 SPA，透過 Vite dev server（port 5173）提供
 - **後端**：FastAPI REST API（port 8000），前端以 Vite proxy 轉發 `/api` 請求
 - **資料庫**：Oracle 19C（遠端，無需本機安裝 Oracle Instant Client）
 - **報表**：Stimulsoft Reports.JS（嵌入式報表設計器 + 預覽列印）
@@ -48,9 +48,9 @@
 
 | 套件 | 版本 | 用途 |
 |------|------|------|
-| react | 18.x | UI 框架 |
+| react | 19.x | UI 框架 |
 | vite | 8.x | 開發伺服器 / 打包工具 |
-| antd | 5.x | UI 元件庫（繁體中文 zh_TW） |
+| antd | 6.x | UI 元件庫（繁體中文 zh_TW） |
 | axios | 最新 | HTTP 用戶端 |
 | stimulsoft-reports-js | 2026.3.2 | 報表設計器（需另購授權） |
 
@@ -93,6 +93,9 @@ ERP2026/
 │       │   ├── customers.js     # customerApi（axios）
 │       │   ├── reports.js       # reportApi：listCustomer / customerReportUrl（含 cache-buster）
 │       │   └── datadict.js      # dataDictApi：主檔/欄位 CRUD、meta、data
+│       ├── lib/
+│       │   └── ddLookup.jsx     # ★ DDLookup.getDDLookup(ddmNo)：呼叫式 Promise API，動態掛載/卸載
+│       ├── theme.js             # antd ConfigProvider 的 locale/theme 設定（main.jsx 與 ddLookup.jsx 共用）
 │       ├── pages/
 │       │   ├── CustomerMaster.jsx   # 客戶主檔維護頁面
 │       │   └── DataDictMaster.jsx   # 資料字典維護頁面（主檔 + 欄位定義）
@@ -102,7 +105,8 @@ ERP2026/
 │           ├── CustomerReportPreview.jsx  # Stimulsoft 純預覽 Modal（載入 .mrt 檔）
 │           ├── DataDictFormModal.jsx      # 新增/編輯資料字典主檔 Modal
 │           ├── DataDictFieldFormModal.jsx # 新增/編輯資料字典欄位 Modal
-│           └── DataDictLookup.jsx         # ★ 可重用 Lookup 元件（其他頁面選值用）
+│           ├── DataDictLookup.jsx         # ★ 可重用 Lookup 元件（JSX 掛用）
+│           └── DDLookupInput.jsx          # ★ 輸入框：打字下拉選單 + 搜尋鈕開 Modal，兩種選值方式並存
 │
 └── .claude/
     └── skills/
@@ -257,6 +261,8 @@ proxy: { '/api': { target: 'http://localhost:8000', changeOrigin: true } }
 | `components/DataDictFormModal.jsx` | 新增 / 編輯資料字典主檔表單 |
 | `components/DataDictFieldFormModal.jsx` | 新增 / 編輯資料字典欄位表單 |
 | `components/DataDictLookup.jsx` | ★ 可重用 Lookup 元件，其他頁面需要「選值」時直接掛用（詳見下一節） |
+| `components/DDLookupInput.jsx` | ★ 打字下拉選單（單選）+ 搜尋鈕開完整 Modal（可多選），一行接上資料字典 |
+| `lib/ddLookup.jsx` | ★ `DDLookup.getDDLookup(ddmNo)`：呼叫式 Lookup，不用寫 `<DataDictLookup>` JSX，回傳 Promise |
 | `api/customers.js` | customerApi（list / get / create / update / remove / reportDataUrl） |
 | `api/reports.js` | reportApi（listCustomer / customerReportUrl，URL 含 `?_=timestamp` cache-buster） |
 | `api/datadict.js` | dataDictApi（主檔/欄位 CRUD、autoGenerateFields、getMeta、getData） |
@@ -321,6 +327,54 @@ function SalesOrderForm() {
 | `onConfirm` | (values, rows) => void | 按下「確認」時呼叫：`values` 為選取列的 `RET_VAL_FIELD` 值陣列（JSON Array，單選也是陣列）；`rows` 為選取的完整資料列，需要其他欄位（例如同時要客戶名稱）可從這裡取 |
 
 > 元件內部已處理搜尋框、欄位標題（依 `TBL_DDFIELD`）、單選/多選（依 `TBLDD.IS_MULTI_SELECTED`），呼叫端只需要管開關狀態與拿回傳值即可。
+
+### 呼叫式用法：`DDLookup.getDDLookup(ddmNo)`
+
+不想在頁面上寫 `<DataDictLookup>` JSX、管 `open` state 的話，可以改用 `frontend/src/lib/ddLookup.jsx` 匯出的 `DDLookup`。呼叫後會動態把 Modal 掛到 `document.body`，使用者操作完再自動卸載，回傳一個 Promise：
+
+```jsx
+import { DDLookup } from '../lib/ddLookup'
+
+async function handlePickCustomer() {
+  const result = await DDLookup.getDDLookup('TBL_CUSTOMER')
+  if (!result) return                 // 使用者取消，resolve 為 null
+  setCumNo(result.values[0])          // RET_VAL_FIELD 值陣列
+  setCumName(result.rows[0]?.CUM_NAME) // 完整選取列，可取其他欄位
+}
+```
+
+- `result === null`：使用者取消（X / 取消鈕 / 點遮罩 / Esc 都算）。
+- `result === { values, rows }`：確認選取，`values`/`rows` 內容與 `<DataDictLookup>` 的 `onConfirm(values, rows)` 完全一致。
+- 因為動態掛載的是**獨立的 React root**，`ddLookup.jsx` 內部會自己包一層跟 `main.jsx` 相同的 `<ConfigProvider>`（設定集中在 `frontend/src/theme.js`，兩處共用，避免改主題漏改一處）。
+- 連續呼叫多次會各自獨立掛載、各自 resolve，antd Modal 原生處理堆疊 z-index，不需要排隊機制。
+
+### 輸入框元件：`<DDLookupInput>`
+
+大部分表單欄位（客戶編號、產品編號⋯）都會用到資料字典選值，`frontend/src/components/DDLookupInput.jsx` 把常見的兩種選值方式包在同一個元件裡，一行接上：
+
+```jsx
+import { useState } from 'react'
+import DDLookupInput from '../components/DDLookupInput'
+
+function SalesOrderForm() {
+  const [cumNo, setCumNo] = useState('')   // 單選字典：畫面顯示用字串
+
+  return (
+    <DDLookupInput
+      ddmNo="TBL_CUSTOMER"
+      value={cumNo}
+      onChange={(values, rows) => setCumNo(values.join(', '))}  // 單選/多選由字典設定決定，這裡不強制取第一筆
+      placeholder="客戶編號"
+    />
+  )
+}
+```
+
+**兩種選值方式並存**：
+1. **直接輸入文字**：邊打字邊向後端查（`GET /api/datadict/{ddm_no}/data?q=`，debounce 300ms），下方即時出現符合條件的下拉選單，點選其一——這個方式**一次只能選一筆**，適合快速輸入已知編號。
+2. **點右邊搜尋按鈕**：開啟完整的 `DDLookup` Modal，可瀏覽、搜尋、多選（依資料字典的 `IS_MULTI_SELECTED` 設定）——多選情境一定要用這個方式，打字下拉選單不支援多選。
+
+不管走哪個路徑，最終都是呼叫 `onChange(values, rows)`，**單選或多選完全由資料字典本身的 `IS_MULTI_SELECTED` 決定**，`DDLookupInput` 不會替呼叫端做任何截斷——`values`/`rows` 就是完整陣列（單選時陣列長度自然是 1），怎麼顯示（例如多選時 `join(', ')`）或儲存由呼叫端自己決定。Props：`ddmNo`（必填）、`value`（顯示字串）、`onChange(values, rows)`、`placeholder`、`disabled`、`style`。
 
 ---
 
@@ -445,6 +499,8 @@ npm install
   - [x] 自動產生欄位定義（依 DDM_SQL 欄位結構）
   - [x] 可重用 `DataDictLookup` 元件（搜尋、單/多選、JSON Array 回傳）
   - [x] 主檔 DDM_SQL 僅允許單一 SELECT（後端檢查，防止多重語句）
+  - [x] 呼叫式 `DDLookup.getDDLookup(ddmNo)`（Promise API，動態掛載/卸載，不用寫 JSX）
+  - [x] `DDLookupInput` 元件（打字下拉選單快速選 + 搜尋鈕開完整 Modal 可多選，一行接上資料字典）
 
 ---
 
