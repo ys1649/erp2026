@@ -38,6 +38,7 @@ export default function CustomerMaster() {
 
   // 測試：資料字典 Lookup（TBL_CUSTOMER）
   const [testCustNo, setTestCustNo] = useState('')
+  const [testCustName, setTestCustName] = useState('')
 
   // ── 查詢 ────────────────────────────────────────────────
   const fetchData = useCallback(async (params = searchParams, pg = page, ps = pageSize) => {
@@ -173,8 +174,13 @@ export default function CustomerMaster() {
           <Form.Item label="客戶編號查詢(測試)">
             <DDLookupInput
               ddmNo="TBL_CUSTOMER"
-              value={testCustNo}
-              onChange={(values) => setTestCustNo(values.join(', '))}
+              displayField="CUM_NAME"
+              value={testCustName}
+              onChange={(values, rows, displayText) => {
+                setTestCustNo(values.join(', '))
+                setTestCustName(displayText)
+                console.log('底層值(CUM_NO)：', values.join(', '))
+              }}
               placeholder="點擊搜尋圖示測試 DDLookupInput"
               style={{ width: 200 }}
             />
