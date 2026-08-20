@@ -12,7 +12,7 @@ import { reportApi } from '../api/reports'
 import CustomerFormModal from '../components/CustomerFormModal'
 import CustomerReportPreview from '../components/CustomerReportPreview'
 import CustomerReport from '../components/CustomerReport'
-import DataDictLookup from '../components/DataDictLookup'
+import DDLookupInput from '../components/DDLookupInput'
 
 const { Title } = Typography
 
@@ -37,7 +37,6 @@ export default function CustomerMaster() {
   const [designerOpen, setDesignerOpen] = useState(false)
 
   // 測試：資料字典 Lookup（TBL_CUSTOMER）
-  const [testLookupOpen, setTestLookupOpen] = useState(false)
   const [testCustNo, setTestCustNo] = useState('')
 
   // ── 查詢 ────────────────────────────────────────────────
@@ -172,17 +171,12 @@ export default function CustomerMaster() {
             </Space>
           </Form.Item>
           <Form.Item label="客戶編號查詢(測試)">
-            <Input
-              readOnly
+            <DDLookupInput
+              ddmNo="TBL_CUSTOMER"
               value={testCustNo}
-              placeholder="點擊搜尋圖示測試 DataDictLookup"
+              onChange={(values) => setTestCustNo(values.join(', '))}
+              placeholder="點擊搜尋圖示測試 DDLookupInput"
               style={{ width: 200 }}
-              suffix={
-                <SearchOutlined
-                  style={{ cursor: 'pointer', color: '#bbb' }}
-                  onClick={() => setTestLookupOpen(true)}
-                />
-              }
             />
           </Form.Item>
         </Form>
@@ -273,17 +267,6 @@ export default function CustomerMaster() {
         open={designerOpen}
         onClose={() => setDesignerOpen(false)}
         searchParams={searchParams}
-      />
-
-      {/* ── 測試：資料字典 Lookup（TBL_CUSTOMER）── */}
-      <DataDictLookup
-        ddmNo="TBL_CUSTOMER"
-        open={testLookupOpen}
-        onCancel={() => setTestLookupOpen(false)}
-        onConfirm={(values) => {
-          setTestCustNo(values.join(', '))
-          setTestLookupOpen(false)
-        }}
       />
     </>
   )
