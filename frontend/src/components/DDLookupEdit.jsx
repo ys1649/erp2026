@@ -14,7 +14,7 @@ import { DDLookup } from '../lib/ddLookup'
  * TBL_DDFIELD.DDD_FIELD；沒給就沿用 RET_VAL_FIELD 顯示。onChange 的第三個參數
  * 是元件依 displayField 算好的顯示文字，呼叫端可直接拿去存成自己的顯示用 state。
  */
-export default function DDLookupInput({ ddmNo, displayField, value, onChange, placeholder, disabled, style }) {
+export default function DDLookupEdit({ ddmNo, displayField, value, onChange, placeholder, disabled, style }) {
   const [meta, setMeta] = useState(null)
   const [inputValue, setInputValue] = useState(value || '')
   const [options, setOptions] = useState([])
@@ -26,7 +26,7 @@ export default function DDLookupInput({ ddmNo, displayField, value, onChange, pl
       setMeta(res.data)
       if (displayField && !res.data.fields.some((f) => f.ddd_field === displayField)) {
         console.warn(
-          `DDLookupInput: displayField "${displayField}" 不在資料字典 "${ddmNo}" 的欄位定義中，改用 RET_VAL_FIELD 顯示`
+          `DDLookupEdit: displayField "${displayField}" 不在資料字典 "${ddmNo}" 的欄位定義中，改用 RET_VAL_FIELD 顯示`
         )
       }
     })

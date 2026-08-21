@@ -1,6 +1,6 @@
 # ERP2026 進銷存系統 — 開發文件
 
-> 最後更新：2026-08-20（DDLookup 呼叫式 API + DDLookupInput 打字下拉/多選 Modal 雙模式 + displayField 顯示欄位；修正版本號 React 19 / antd 6）
+> 最後更新：2026-08-21（DDLookupInput 元件更名為 DDLookupEdit）
 
 ---
 
@@ -106,7 +106,7 @@ ERP2026/
 │           ├── DataDictFormModal.jsx      # 新增/編輯資料字典主檔 Modal
 │           ├── DataDictFieldFormModal.jsx # 新增/編輯資料字典欄位 Modal
 │           ├── DataDictLookup.jsx         # ★ 可重用 Lookup 元件（JSX 掛用）
-│           └── DDLookupInput.jsx          # ★ 輸入框：打字下拉選單 + 搜尋鈕開 Modal，displayField 決定顯示欄位
+│           └── DDLookupEdit.jsx          # ★ 輸入框：打字下拉選單 + 搜尋鈕開 Modal，displayField 決定顯示欄位
 │
 └── .claude/
     └── skills/
@@ -261,7 +261,7 @@ proxy: { '/api': { target: 'http://localhost:8000', changeOrigin: true } }
 | `components/DataDictFormModal.jsx` | 新增 / 編輯資料字典主檔表單 |
 | `components/DataDictFieldFormModal.jsx` | 新增 / 編輯資料字典欄位表單 |
 | `components/DataDictLookup.jsx` | ★ 可重用 Lookup 元件，其他頁面需要「選值」時直接掛用（詳見下一節） |
-| `components/DDLookupInput.jsx` | ★ 打字下拉選單（單選）+ 搜尋鈕開完整 Modal（可多選），`displayField` 決定畫面顯示欄位、`value` 仍是 `RET_VAL_FIELD` |
+| `components/DDLookupEdit.jsx` | ★ 打字下拉選單（單選）+ 搜尋鈕開完整 Modal（可多選），`displayField` 決定畫面顯示欄位、`value` 仍是 `RET_VAL_FIELD` |
 | `lib/ddLookup.jsx` | ★ `DDLookup.getDDLookup(ddmNo)`：呼叫式 Lookup，不用寫 `<DataDictLookup>` JSX，回傳 Promise |
 | `api/customers.js` | customerApi（list / get / create / update / remove / reportDataUrl） |
 | `api/reports.js` | reportApi（listCustomer / customerReportUrl，URL 含 `?_=timestamp` cache-buster） |
@@ -348,20 +348,20 @@ async function handlePickCustomer() {
 - 因為動態掛載的是**獨立的 React root**，`ddLookup.jsx` 內部會自己包一層跟 `main.jsx` 相同的 `<ConfigProvider>`（設定集中在 `frontend/src/theme.js`，兩處共用，避免改主題漏改一處）。
 - 連續呼叫多次會各自獨立掛載、各自 resolve，antd Modal 原生處理堆疊 z-index，不需要排隊機制。
 
-### 輸入框元件：`<DDLookupInput>`
+### 輸入框元件：`<DDLookupEdit>`
 
-大部分表單欄位（客戶編號、產品編號⋯）都會用到資料字典選值，`frontend/src/components/DDLookupInput.jsx` 把常見的兩種選值方式包在同一個元件裡，一行接上：
+大部分表單欄位（客戶編號、產品編號⋯）都會用到資料字典選值，`frontend/src/components/DDLookupEdit.jsx` 把常見的兩種選值方式包在同一個元件裡，一行接上：
 
 ```jsx
 import { useState } from 'react'
-import DDLookupInput from '../components/DDLookupInput'
+import DDLookupEdit from '../components/DDLookupEdit'
 
 function SalesOrderForm() {
   const [cumNo, setCumNo] = useState('')       // 綁定用的值，永遠是 RET_VAL_FIELD（例如 CUM_NO）
   const [cumName, setCumName] = useState('')   // 畫面顯示用文字，由 displayField 決定內容
 
   return (
-    <DDLookupInput
+    <DDLookupEdit
       ddmNo="TBL_CUSTOMER"
       displayField="CUM_NAME"                  // 選填：畫面顯示客戶名稱而非編號，需為該字典 TBL_DDFIELD.DDD_FIELD 之一
       value={cumName}                          // 顯示用的 state 要跟著 displayField 走
@@ -381,7 +381,7 @@ function SalesOrderForm() {
 
 不管走哪個路徑，最終都是呼叫 `onChange(values, rows, displayText)`：
 
-- **`values`/`rows`**：永遠是 `TBLDD.RET_VAL_FIELD` 對應的值與完整選取列，**單選或多選完全由資料字典本身的 `IS_MULTI_SELECTED` 決定**，`DDLookupInput` 不會替呼叫端做任何截斷（單選時陣列長度自然是 1），要怎麼儲存由呼叫端自己決定。
+- **`values`/`rows`**：永遠是 `TBLDD.RET_VAL_FIELD` 對應的值與完整選取列，**單選或多選完全由資料字典本身的 `IS_MULTI_SELECTED` 決定**，`DDLookupEdit` 不會替呼叫端做任何截斷（單選時陣列長度自然是 1），要怎麼儲存由呼叫端自己決定。
 - **`displayText`**：選填的 `displayField` 決定選取後畫面上要顯示哪個欄位（需對應該字典 `TBL_DDFIELD.DDD_FIELD` 之一，找不到會 `console.warn` 並退回顯示 `RET_VAL_FIELD`）；多筆選取時自動用 `, ` 接起來。沒給 `displayField` 就跟以前一樣顯示 `RET_VAL_FIELD` 的值。
 
 Props：`ddmNo`（必填）、`displayField`（選填，畫面顯示欄位）、`value`（顯示字串）、`onChange(values, rows, displayText)`、`placeholder`、`disabled`、`style`。
@@ -510,8 +510,8 @@ npm install
   - [x] 可重用 `DataDictLookup` 元件（搜尋、單/多選、JSON Array 回傳）
   - [x] 主檔 DDM_SQL 僅允許單一 SELECT（後端檢查，防止多重語句）
   - [x] 呼叫式 `DDLookup.getDDLookup(ddmNo)`（Promise API，動態掛載/卸載，不用寫 JSX）
-  - [x] `DDLookupInput` 元件（打字下拉選單快速選 + 搜尋鈕開完整 Modal 可多選，一行接上資料字典）
-  - [x] `DDLookupInput` 支援 `displayField`：畫面顯示指定欄位、底層值仍是 `RET_VAL_FIELD`
+  - [x] `DDLookupEdit` 元件（打字下拉選單快速選 + 搜尋鈕開完整 Modal 可多選，一行接上資料字典）
+  - [x] `DDLookupEdit` 支援 `displayField`：畫面顯示指定欄位、底層值仍是 `RET_VAL_FIELD`
 
 ---
 

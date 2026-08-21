@@ -12,7 +12,7 @@ import { reportApi } from '../api/reports'
 import CustomerFormModal from '../components/CustomerFormModal'
 import CustomerReportPreview from '../components/CustomerReportPreview'
 import CustomerReport from '../components/CustomerReport'
-import DDLookupInput from '../components/DDLookupInput'
+import DDLookupEdit from '../components/DDLookupEdit'
 
 const { Title } = Typography
 
@@ -172,7 +172,7 @@ export default function CustomerMaster() {
             </Space>
           </Form.Item>
           <Form.Item label="客戶編號查詢(測試)">
-            <DDLookupInput
+            <DDLookupEdit
               ddmNo="TBL_CUSTOMER"
               displayField="CUM_NAME"
               value={testCustName}
@@ -181,8 +181,8 @@ export default function CustomerMaster() {
                 setTestCustName(displayText)
                 console.log('底層值(CUM_NO)：', values.join(', '))
               }}
-              placeholder="點擊搜尋圖示測試 DDLookupInput"
-              style={{ width: 200 }}
+              placeholder="點擊搜尋圖示測試 DDLookupEdit"
+              style={{ width: 300 }}
             />
           </Form.Item>
         </Form>
